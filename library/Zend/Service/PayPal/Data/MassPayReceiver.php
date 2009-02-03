@@ -5,53 +5,72 @@ class Zend_Service_PayPal_Data_MassPayReceiver
     /**
      * Receiver type constants
      */
-    const RT_EMAIL = 'EmailAddress'; // Receiver identified by e-mail address 
-    
-    const RT_USERID = 'UserID'; // Receiver identified by PayPal user ID 
+    const TYPE_EMAIL  = 'EmailAddress'; // Receiver identified by e-mail address 
+  
+    const TYPE_USERID = 'UserID'; // Receiver identified by PayPal user ID 
     
     /**
      * Receiver identifier(email address or PayPal ID)
      *
      * @var string
      */
-    protected $receiverid = null;
+    protected $_receiver;
     
     /**
      * Receiver ID type - one of the two type constants
      *
      * @var string
      */
-    protected $receivertype = null;
+    protected $_receiverType;
     
     /**
-     * Ammount to pay(currency is defined in transaction)
+     * Amount to pay(currency is defined in transaction)
      *
      * @var float
      */
-    protected $ammount = null;
+    protected $_amount;
     
     /**
      * Optional unique transaction ID
      *
      * @var string
      */
-    protected $uniqueid = null;
+    protected $_uniqueid;
     
     /**
      * Optional customer-specific note
      *
      * @var string
      */
-    protected $note = null;
+    protected $_note;
     
     /**
      * Create a new receiver info object
+     * 
+     * @todo should we really validate the email address here?
      *
      * @param float  $amount   Amount to pay(> 0)
      * @param string $rcpt      Unique receiver identifier
      * @param string $rcpt_type One of the two type constants
      */
-    public function __construct($amount, $rcpt, $rcpt_type = self::RT_EMAIL);
+    public function __construct($amount, $receiver, $receiverType = self::TYPE_EMAIL)
+    {
+        $this->_amount = $amount;
+        
+        
+        if ( self::TYPE_EMAIL == $receiverType ) {
+            $validator = new Zend_Validate_EmailAddress();
+            if ( !$validator->isValid( $receiver ) ) {
+                require_once 'Zend/Service/PayPal/Data/Exception';
+                throw new Zend_Service_PayPal_Data_Exception(
+                        'Invalid email address specified for reciever' );
+            }
+        }
+    
+        
+        $this->receiver = $receiver;
+        $this->receiverType
+    }
     
     /**
      * Set the optional unique receiver ID

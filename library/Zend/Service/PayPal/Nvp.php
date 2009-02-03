@@ -1,35 +1,51 @@
 <?php
 
 
+/** @see Zend_Http_Client */
+require_once 'Zend/Http/Client.php';
+
+/** @see Zend_Service_PayPal_Data_AuthInfo*/
+require_once 'Zend/Service/PayPal/Data/AuthInfo.php';
+
 class Zend_Service_PayPal_Nvp
 {
-    /**
-     * Paypal NVP service URL
-     *
-     */
-    const SERVICE_URI = 'https://api-3t.sandbox.paypal.com/nvp';
     
     /**
      * Authentication info for the PayPal API service
      *
      * @var Zend_Service_PayPal_Data_AuthInfo
      */
-    protected $authInfo = null;
+    protected $_authInfo;
     
     /**
      * Zend_Http_Client to use for the service
      *
      * @var Zend_Http_Client
      */
-    protected $httpClient = null;
+    protected $_httpClient;
+    
+    protected $_config = array(
+        'endpoint'	=> 'https://api-3t.sandbox.paypal.com/nvp',
+        'version'	=> 56.0
+    );
     
     /**
      * Enter description here...
+     * 
+     * @todo should we allow $authInfo to be passed in as an array?
+     * 
+     * @todo was there a good reason for (originally) passing in a Zend_Http_Client?
      *
      * @param Zend_Service_PayPal_Data_AuthInfo $auth_info
      * @param Zend_Http_Client                  $httpClient
      */
-    public function __construct (Zend_Service_PayPal_Data_AuthInfo $authInfo, $httpClient = null);
+    public function __construct(Zend_Service_PayPal_Data_AuthInfo $authInfo, array $options = array())
+    {
+        $this->_authInfo    = $authInfo;
+        $this->_httpClient = new Zend_Http_Client();
+        
+        $this->_config = array_merge( $this->_config, $options ); 
+    }
     
     /**
      * HTTP client preparation procedures - should be called before every API
@@ -41,21 +57,41 @@ class Zend_Service_PayPal_Nvp
      * @param string $method The API method we are about to use
      * @return void
      */
-    protected function prepare ($method);
+    protected function _prepare( $apiMethod )
+    {
+        
+    }
     
     /**
      * Preform the request and return a response object
      *
      * @return Zend_Service_PayPal_Response
      */
-    protected function process (); 
+    protected function _process()
+    {
+        
+    }
     
     /**
      * Get the HTTP client to be used for this service
      *
      * @return Zend_Http_Client
      */
-    public function getHttpClient ();
+    public function getHttpClient()
+    {
+        return $this->_httpClient;
+    }
+    
+    /**
+     * Set the HTTP client to be used for this service
+     *
+     * @param Zend_Http_Client $client
+     */
+    public function setHttpClient( Zend_Http_Client $client )
+    {
+        $this->_httpClient = $client;
+    }
+    
     /**
      * Preform a DoDirectPayment call
      *
@@ -72,8 +108,11 @@ class Zend_Service_PayPal_Nvp
      * @param  array                               $params
      * @return Zend_Service_PayPal_Response
      */
+    public function doDirectPayment($creditCard, $address, $ammount, $remoteAddr = null, $paymentAction = 'Sale', array $params = array())
+    {
+        
+    }
     
-    public function doDirectPayment ($creditCard, $address, $ammount, $remoteAddr = null, $paymentAction = 'Sale', $params = array());
     /**
      * Preform a SetExpressCheckout PayPal API call, starting an Express
      * Checkout process.
@@ -81,13 +120,16 @@ class Zend_Service_PayPal_Nvp
      * This call is expected to return a token which can be used to redirect
      * the user to PayPal's transaction approval page
      *
-     * @param  float  $ammount
+     * @param  float  $amount
      * @param  string $returnUrl
      * @param  string $cancelUrl
      * @param  array  $params    Additional parameters
      * @return Zend_Service_PayPal_Response
      */
-    public function setExpressCheckout ($ammount, $returnUrl, $cancelUrl, $params = array());
+    public function setExpressCheckout($amount, $returnUrl, $cancelUrl, array $params = array())
+    {
+        
+    }
     
     /**
      * Preform a GetExpressCheckoutDetails PayPal API call, requesting info
@@ -97,7 +139,11 @@ class Zend_Service_PayPal_Nvp
      * @return Zend_Service_PayPal_Response
      */
     
-    public function getExpressCheckoutDetails ($token);
+    public function getExpressCheckoutDetails($token)
+    {
+        
+    }
+    
     /**
      * Preform a DoExpressCheckoutPayment PayPal API call, finalizing a
      * transaction.
@@ -108,7 +154,10 @@ class Zend_Service_PayPal_Nvp
      * @param  string $paymentAction Payment action - 'Sale' or 'Authorization'
      * @return Zend_Service_PayPal_Response
      */
-    public function doExpressCheckoutPayment ($token, $payerId, $ammount, $paymentAction = 'Sale');
+    public function doExpressCheckoutPayment($token, $payerId, $ammount, $paymentAction = 'Sale')
+    {
+        
+    }
     
     /**
      * Preform a Mass Payment API call
@@ -119,7 +168,10 @@ class Zend_Service_PayPal_Nvp
      * @param  string $currency     3 letter currency code, default is USD
      * @return Zend_Service_PayPal_Response
      */
-    public function doMassPay (array $receivers, $rcpttype = Zend_Service_PayPal_Data_MassPayReceiver::RT_EMAIL, $emailSubject = '', $currency = 'USD');
+    public function doMassPay(array $receivers, $rcpttype = Zend_Service_PayPal_Data_MassPayReceiver::RT_EMAIL, $emailSubject = '', $currency = 'USD')
+    {
+
+    }
     
     /**
      * Preform a Get Transaction Details API call
@@ -127,6 +179,18 @@ class Zend_Service_PayPal_Nvp
      * @param  string $transactionId Transaction ID (17 Alphanumeric single-byte characters)
      * @return Zend_Service_PayPal_Response
      */
-    public function doGetTransactionDetails ($transactionId)
-    {}
+    public function doGetTransactionDetails($transactionId)
+    {
+        
+    }
+    
+    /**
+     * Sets the version of the NVP API to use
+     *
+     * @param float $version
+     */
+    public function setVersion( $version )
+    {
+        $this->_config[ 'version' ] = $version;
+    }
 } 
