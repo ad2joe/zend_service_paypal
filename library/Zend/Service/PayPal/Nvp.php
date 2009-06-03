@@ -28,6 +28,13 @@ class Zend_Service_PayPal_Nvp
         'endpoint'	=> 'https://api-3t.sandbox.paypal.com/nvp',
         'version'	=> 56.0
     );
+
+    /**
+     * TODO: description.
+     * 
+     * @var string  Defaults to ''. 
+     */
+    protected $_lastResponse;
     
     /**
      * Enter description here...
@@ -128,7 +135,15 @@ class Zend_Service_PayPal_Nvp
      */
     public function setExpressCheckout($amount, $returnUrl, $cancelUrl, array $params = array())
     {
-        
+        //----------------------------------
+        // TODO Verify return url and cancel url
+        //----------------------------------
+        $data = $this->_parseParams( $params );
+        $data['METHOD'] = 'SetExpressCheckout';
+
+        $response = $this->_doMethodCall( $data );
+        return new Zend_Service_PayPal_Nvp_Response( $response );
+
     }
     
     /**
@@ -139,9 +154,13 @@ class Zend_Service_PayPal_Nvp
      * @return Zend_Service_PayPal_Response
      */
     
-    public function getExpressCheckoutDetails($token)
+    public function getExpressCheckoutDetails( $token )
     {
-        
+        $data = array( 'TOKEN' => $token );
+        $data['METHOD'] = 'GetExpressCheckoutDetails';
+
+        $response = $this->_doMethodCall( $data );
+        return new Zend_Service_PayPal_Nvp_Response( $response );
     }
     
     /**
@@ -193,4 +212,40 @@ class Zend_Service_PayPal_Nvp
     {
         $this->_config[ 'version' ] = $version;
     }
+
+    /**
+     * 
+     * @return array
+     */
+    protected function _parseParams( array $aParams )
+    {
+        $data = array();
+        foreach( $aParams as $name => $value ) {
+            $data[strtoupper($name)] = urlencode($value);
+        }
+
+        return $data;
+    }
+
+    /**
+     * TODO: short description.
+     * 
+     * @param array $aParams 
+     * 
+     * @return TODO
+     */
+    protected function _doMethodCall( array $aParams )
+    {
+        //--------------------------------------
+        // Add auth details to params
+        //--------------------------------------
+        $aParams['USER']      = $this->_authInfo->getUsername();
+        $aParams['PWD']       = $this->_authInfo->getPassword();
+        $aParams['SIGNATURE'] = $this->_authInfo->getSignature();
+        $aParams['VERSION']   = $this->_config[ 'version' ];
+
+        $this->_httpClient->setPost( $aParams );
+        return $this->_httpClient->request( Zend_Http_Client::POST );
+    }
+
 } 
